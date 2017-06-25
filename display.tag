@@ -1,27 +1,37 @@
 <display>
   <!-- View -->
-  <div class="playerName">{ player.name }</div>
-  <div class='LifePoint'>
-    {player.lifePoint}
+  <div each={playerList}>
+    <div class="playerName">{ name }</div>
+    <div class='LifePoint'>
+      {lifePoint}
+    </div>
+    <div each={buttonList}>
+      <input type="button" value="{value}" onclick="{clickItem}">
+    </div>
   </div>
-  <div each={buttonList}>
-    <input type="button" value="{value}" onclick="{clickItem}">
-  </div>
+  <input type="button" value="+" onclick="{addPlayer}">
   <!-- LOGIC -->
   <script>
-    this.player = {
-      name: "Test",
-      lifePoint: 8000
-    }
+    this.playerList = []
     this.buttonList = [
       { value: 1000 },
       { value: -1000 }
     ]
     this.clickItem = function (e) {
-      console.log(e.item.value - 0)
-      this.player.lifePoint += (e.item.value - 0)
-      //console.log(this.player.lifePoint)
-      this.update()
+      const addLP = _CMof.castForNumber(this.value - 0)
+      const dstPlayerName = this.name
+      const dstPlayerIdx = this.playerList.find(function (element, index, array) {
+        if (element.name === dstPlayerName) return true;
+      });
+    }
+
+    this.addPlayer = function (params) {
+      const param = "Player" + _CMof.getHash()
+      const addedIndex = this.playerList.push({
+        chairId: null,
+        name: param,
+        lifePoint: 8000
+      });
     }
   </script>
   <!--Style-->
@@ -41,7 +51,6 @@
 </display>
 <tenkey>
   <!--View-->
-  <span>TENKEY!</span>
   <input type="text" onkeydown="{keyInput}" value="{fieldValue}">
   <div each={keyLeyout}>
     <input type="button" value="{[value]}">
@@ -58,11 +67,11 @@
     }
     //キー入力受付
     this.keyInput = function (e) {
-      switch(e.keyCode){
+      switch (e.keyCode) {
         case 13:  //Enter
-          console.log(this.fieldValue);
-        break;
-        }
+          console.log(_CMof.castForNumber(this.fieldValue));
+          break;
+      }
     }
     this.sendcalc = function (params) {
       console.log(params)
