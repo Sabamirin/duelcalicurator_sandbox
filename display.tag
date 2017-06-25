@@ -20,9 +20,10 @@
     this.clickItem = function (e) {
       const addLP = _CMof.castForNumber(this.value - 0)
       const dstPlayerName = this.name
-      const dstPlayerIdx = this.playerList.find(function (element, index, array) {
+      const dstPlayer = this.playerList.find(function (element, index, array) {
         if (element.name === dstPlayerName) return true;
       });
+      dstPlayer.lifePoint += addLP;
     }
 
     this.addPlayer = function (params) {
