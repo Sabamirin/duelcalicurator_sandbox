@@ -11,6 +11,7 @@ var observer = riot.observable();
         <input type="button" value="{value}" onclick="{clickItem}">
       </div>
       <freeInput linkto={name}></freeInput>
+      <cHistory linkto={name}></cHistory>
     </div>
   </div>
   <input type="button" value="+" onclick="{addPlayer}">
@@ -22,16 +23,36 @@ var observer = riot.observable();
       { value: -1000 }
     ]
     const self = this;
+    /*固定ボタンからの送信*/
     this.clickItem = function (e) {
-      const addLP = _CMof.castForNumber(this.value - 0)
-      const dstPlayerName = this.name
-      this.dealDamage(dstPlayerName, addLP)
+      const addLP = _CMof.castForNumber(this.value - 0);
+      const dstPlayerName = this.name;
+      this.dealDamage(dstPlayerName, addLP);
+      observer.trigger("calcExecute", {
+        "sendVal": addLP,
+        "player": dstPlayerName
+      });
     }
+    /*フリー入力からの送信*/
     this.calcExecute = function (params) {
-      const addLP = _CMof.castForNumber(params.sendVal - 0)
-      const dstPlayerName = params.linkto
-      this.dealDamage(dstPlayerName, addLP)
+      const addLP = _CMof.castForNumber(params.sendVal - 0);
+      const dstPlayerName = params.player;
+      this.dealDamage(dstPlayerName, addLP);
+      observer.trigger("calcExecute", params);
     }
+    observer.on("freeInputSend", function (params) {
+      self.calcExecute(params);
+    });
+    /*履歴から復帰*/
+    this.backExecute = function (params) {
+      const addLP = _CMof.castForNumber(params.sendVal - 0);
+      const dstPlayerName = params.player;
+      this.dealDamage(dstPlayerName, addLP);
+    }
+    observer.on("calcHistorySend", function (params) {
+      self.backExecute(params);
+    });
+    /*ライフポイント増減処理*/
     this.dealDamage = function (pName, damage) {
       const dstPlayer = this.playerList.find(function (element, index, array) {
         if (element.name === pName) return true;
@@ -49,9 +70,6 @@ var observer = riot.observable();
         lifePoint: 8000
       });
     }
-    observer.on("freeInputSend", function (params) {
-      self.calcExecute(params)
-    });
   </script>
   <!--Style-->
   <style>
@@ -96,7 +114,7 @@ var observer = riot.observable();
           e.currentTarget.value = "";
           observer.trigger("freeInputSend", {
             "sendVal": sendVal,
-            "linkto": this.opts.linkto
+            "player": this.opts.linkto
           });
           break;
       }
@@ -111,6 +129,49 @@ var observer = riot.observable();
     // }
   </script>
 </freeInput>
-<chistory>
+<cHistory>
+  <div class='calcHistoryWrapper'>
+    <div class='' each={historyList}>
+      <input type='button' value='←' onclick='{resumeHistory}'>
+      <span>{value}</span>
+    </div>
+  </div>
+  <script>
+    this.historyList = [];
+    const self = this;
+    this.addHistory = function (params) {
+      this.historyList.push({
+        "id": this.historyList.length,
+        "value": params.sendVal
+      });
+      this.update();
+    }
+    this.resumeHistory = function (e) {
+      const sendVal = e.item.value * -1 //正負を反転して送信
 
-</chistory>
+      //戻すイベント送信
+      observer.trigger("calcHistorySend", {
+        "sendVal": sendVal,
+        "player": self.opts.linkto
+      });
+      //削除
+      const delId = e.item.id;
+      let delIndex = -1;
+
+      this.historyList.find(function (element, index, array) {
+        if (element.id === delId) {
+          delIndex = index
+          return true
+        };
+      });
+      if (delIndex >= 0) {
+        this.historyList.splice(delIndex, 1)
+      }
+    }
+    observer.on("calcExecute", function (params) {
+      if (self.opts.linkto === params.player) {
+        self.addHistory(params);
+      }
+    });
+  </script>
+</cHistory>
