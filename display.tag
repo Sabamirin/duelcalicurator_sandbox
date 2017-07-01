@@ -112,13 +112,16 @@
       switch (e.keyCode) {
         case 13:  //Enter
           const plainVal = e.currentTarget.value;
-          const sendVal = this.parceInput(plainVal);
+          const temp = this.parceInput(plainVal);
+          if (temp.isFinished){
+            const sendVal = temp.value;
+            observer.trigger("freeInputSend", {
+              "sendVal": sendVal,
+              "plainVal": plainVal,
+              "player": this.opts.linkto
+            });
+          }
           e.currentTarget.value = "";
-          observer.trigger("freeInputSend", {
-            "sendVal": sendVal,
-            "plainVal": plainVal,
-            "player": this.opts.linkto
-          });
           break;
       }
     }
