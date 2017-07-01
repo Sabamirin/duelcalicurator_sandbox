@@ -1,3 +1,4 @@
+var observer = riot.observable();
 <display>
   <!-- View -->
   <div each={playerList}>
@@ -8,6 +9,7 @@
     <div each={buttonList}>
       <input type="button" value="{value}" onclick="{clickItem}">
     </div>
+    <freeInput linkto={name}></freeInput>
   </div>
   <input type="button" value="+" onclick="{addPlayer}">
   <!-- LOGIC -->
@@ -17,6 +19,7 @@
       { value: 1000 },
       { value: -1000 }
     ]
+    const self = this;
     this.clickItem = function (e) {
       const addLP = _CMof.castForNumber(this.value - 0)
       const dstPlayerName = this.name
@@ -25,7 +28,16 @@
       });
       dstPlayer.lifePoint += addLP;
     }
-
+    this.pushExecute = function (params) {
+      const addLP = _CMof.castForNumber(params.sendVal);
+      const dstPlayerName = params.linkto;
+      const dstPlayer = this.playerList.find(function (element, index, array) {
+        if (element.name === dstPlayerName) return true;
+      });
+      dstPlayer.lifePoint += addLP;
+      
+      this.update();
+    }
     this.addPlayer = function (params) {
       const param = "Player" + _CMof.getHash()
       const addedIndex = this.playerList.push({
@@ -34,6 +46,9 @@
         lifePoint: 8000
       });
     }
+    observer.on("freeInputSend",function(params){
+        self.pushExecute(params)
+    });
   </script>
   <!--Style-->
   <style>
@@ -50,19 +65,15 @@
     }
   </style>
 </display>
-<tenkey>
+<freeInput>
   <!--View-->
   <input type="text" onkeydown="{keyInput}" value="{fieldValue}">
+  <p>linkto:{opts.linkto}</p>
   <div each={keyLeyout}>
     <input type="button" value="{[value]}">
   </div>
   <!--logic-->
   <script>
-    this.keyLeyout = [
-      [7, 8, 9],
-      [4, 5, 6],
-      [1, 2, 3],
-    ]
     this.InputQueue = function () {
 
     }
@@ -70,16 +81,26 @@
     this.keyInput = function (e) {
       switch (e.keyCode) {
         case 13:  //Enter
-          console.log(_CMof.castForNumber(this.fieldValue));
+          const sendVal = _CMof.castForNumber(e.currentTarget.value);
+          e.currentTarget.value = "";
+          observer.trigger("freeInputSend",{
+            "sendVal":sendVal,
+            "linkto" :this.opts.linkto
+          });
           break;
       }
     }
-    this.sendcalc = function (params) {
-      console.log(params)
-      return false;
-    }
+    // this.sendcalc = function (params) {
+    //   console.log(params);
+    //   //親に送る
+    //   if (this.parent.pushExecute) {
+    //     this.parent.pushExecute(params);
+
+    //   }
+    //   return false;
+    // }
   </script>
-</tenkey>
+</freeInput>
 <chistory>
 
 </chistory>
