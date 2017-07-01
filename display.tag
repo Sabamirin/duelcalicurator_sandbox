@@ -1,4 +1,3 @@
-var observer = riot.observable();
 <display>
   <!-- View -->
   <div class='playerWrapper'>
@@ -30,6 +29,7 @@ var observer = riot.observable();
       this.dealDamage(dstPlayerName, addLP);
       observer.trigger("calcExecute", {
         "sendVal": addLP,
+        "plainVal": "",
         "player": dstPlayerName
       });
     }
@@ -106,14 +106,17 @@ var observer = riot.observable();
   </div>
   <!--logic-->
   <script>
+    this.mixin(commonFunc)
     //キー入力受付
     this.keyInput = function (e) {
       switch (e.keyCode) {
         case 13:  //Enter
-          const sendVal = _CMof.castForNumber(e.currentTarget.value);
+          const plainVal = e.currentTarget.value;
+          const sendVal = this.parceInput(plainVal);
           e.currentTarget.value = "";
           observer.trigger("freeInputSend", {
             "sendVal": sendVal,
+            "plainVal": plainVal,
             "player": this.opts.linkto
           });
           break;
@@ -133,7 +136,7 @@ var observer = riot.observable();
   <div class='calcHistoryWrapper'>
     <div class='' each={historyList}>
       <input type='button' value='←' onclick='{resumeHistory}'>
-      <span>{value}</span>
+      <span>{value}</span><span class="expression">{expression}</span>
     </div>
   </div>
   <script>
@@ -142,7 +145,8 @@ var observer = riot.observable();
     this.addHistory = function (params) {
       this.historyList.push({
         "id": this.historyList.length,
-        "value": params.sendVal
+        "value": params.sendVal,
+        "expression": params.plainVal
       });
       this.update();
     }
@@ -152,6 +156,7 @@ var observer = riot.observable();
       //戻すイベント送信
       observer.trigger("calcHistorySend", {
         "sendVal": sendVal,
+        "plainVal": "",
         "player": self.opts.linkto
       });
       //削除
@@ -160,8 +165,8 @@ var observer = riot.observable();
 
       this.historyList.find(function (element, index, array) {
         if (element.id === delId) {
-          delIndex = index
-          return true
+          delIndex = index;
+          return true;
         };
       });
       if (delIndex >= 0) {
@@ -174,4 +179,11 @@ var observer = riot.observable();
       }
     });
   </script>
+  <style>
+    .expression {
+      font-size: 50%;
+      color: grey;
+      margin-left: 8px;
+    }
+  </style>
 </cHistory>
