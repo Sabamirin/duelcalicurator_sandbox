@@ -1,15 +1,17 @@
 var observer = riot.observable();
 <display>
   <!-- View -->
-  <div each={playerList}>
-    <div class="playerName">{ name }</div>
-    <div class='LifePoint'>
-      {lifePoint}
+  <div class='playerWrapper'>
+    <div class='playerBody' each={playerList}>
+      <div class="playerName">{ name }</div>
+      <div class='LifePoint'>
+        {lifePoint}
+      </div>
+      <div each={buttonList}>
+        <input type="button" value="{value}" onclick="{clickItem}">
+      </div>
+      <freeInput linkto={name}></freeInput>
     </div>
-    <div each={buttonList}>
-      <input type="button" value="{value}" onclick="{clickItem}">
-    </div>
-    <freeInput linkto={name}></freeInput>
   </div>
   <input type="button" value="+" onclick="{addPlayer}">
   <!-- LOGIC -->
@@ -57,27 +59,35 @@ var observer = riot.observable();
       font-size: 1em
     }
 
-    h3 {
-      color: #444
+    .playerBody {
+      width: 300px;
+      margin-left: 4px;
+      display: block;
+      float: left;
     }
 
-    ul {
-      color: #999
+    .LifePoint {
+      font-size: 3em;
+      border: solid silver 3px;
+      color: #FF33FF;
+      background-color: #FFCC66;
+    }
+
+    .playerName {
+      background-color: silver;
+      color: white;
+      margin-bottom: 0px;
     }
   </style>
 </display>
 <freeInput>
   <!--View-->
   <input type="text" onkeydown="{keyInput}" value="{fieldValue}">
-  <p>linkto:{opts.linkto}</p>
   <div each={keyLeyout}>
     <input type="button" value="{[value]}">
   </div>
   <!--logic-->
   <script>
-    this.InputQueue = function () {
-
-    }
     //キー入力受付
     this.keyInput = function (e) {
       switch (e.keyCode) {
@@ -96,7 +106,6 @@ var observer = riot.observable();
     //   //親に送る
     //   if (this.parent.pushExecute) {
     //     this.parent.pushExecute(params);
-
     //   }
     //   return false;
     // }
