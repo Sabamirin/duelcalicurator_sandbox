@@ -23,20 +23,21 @@ var observer = riot.observable();
     this.clickItem = function (e) {
       const addLP = _CMof.castForNumber(this.value - 0)
       const dstPlayerName = this.name
-      const dstPlayer = this.playerList.find(function (element, index, array) {
-        if (element.name === dstPlayerName) return true;
-      });
-      dstPlayer.lifePoint += addLP;
+      this.dealDamage(dstPlayerName, addLP)
     }
-    this.pushExecute = function (params) {
-      const addLP = _CMof.castForNumber(params.sendVal);
-      const dstPlayerName = params.linkto;
+    this.calcExecute = function (params) {
+      const addLP = _CMof.castForNumber(params.sendVal - 0)
+      const dstPlayerName = params.linkto
+      this.dealDamage(dstPlayerName, addLP)
+    }
+    this.dealDamage = function (pName, damage) {
       const dstPlayer = this.playerList.find(function (element, index, array) {
-        if (element.name === dstPlayerName) return true;
+        if (element.name === pName) return true;
       });
-      dstPlayer.lifePoint += addLP;
-      
-      this.update();
+      if (dstPlayer) {
+        dstPlayer.lifePoint += damage;
+        this.update();
+      }
     }
     this.addPlayer = function (params) {
       const param = "Player" + _CMof.getHash()
@@ -46,8 +47,8 @@ var observer = riot.observable();
         lifePoint: 8000
       });
     }
-    observer.on("freeInputSend",function(params){
-        self.pushExecute(params)
+    observer.on("freeInputSend", function (params) {
+      self.calcExecute(params)
     });
   </script>
   <!--Style-->
@@ -83,9 +84,9 @@ var observer = riot.observable();
         case 13:  //Enter
           const sendVal = _CMof.castForNumber(e.currentTarget.value);
           e.currentTarget.value = "";
-          observer.trigger("freeInputSend",{
-            "sendVal":sendVal,
-            "linkto" :this.opts.linkto
+          observer.trigger("freeInputSend", {
+            "sendVal": sendVal,
+            "linkto": this.opts.linkto
           });
           break;
       }
